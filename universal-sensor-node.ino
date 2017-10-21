@@ -6,6 +6,10 @@ bool hasMcp9808 = false;
 BMP180 bMP180;
 bool hasBmp180 = false;
 
+#include <HTU21D.h>
+HTU21D htu21d = HTU21D();
+bool hasHtu21d = false;
+
 const int USEC_IN_MIN = 60 * 1000;
 
 String deviceName;
@@ -26,6 +30,10 @@ void setup()
 
     if (bMP180.begin()) {
         hasBmp180 = true;
+    }
+
+    if (htu21d.begin()) {
+        hasHtu21d = true;
     }
 
     while (deviceName == "") {
@@ -56,6 +64,11 @@ void loop()
         bMP180.getPressure(absolutePressure, temperature);
         double sealevelPressure = bMP180.sealevel(absolutePressure, CURRENT_ALTITUDE);
     	Particle.publish(String(deviceName + "_bmp180Pressure"), String(sealevelPressure));
+    }
+    
+    if (hasHtu21d) {
+    	Particle.publish(String(deviceName + "_htu21dTemperature"), String(htu21d.readTemperature()));
+    	Particle.publish(String(deviceName + "_htu21dHumidity"), String(htu21d.readHumidity()));
     }
 
 	delay(5 * USEC_IN_MIN);
